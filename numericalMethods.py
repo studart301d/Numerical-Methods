@@ -165,4 +165,5 @@ def false_pos(f, a, b, epsilon, maxIter = 50):
        
     ## Mostrar uma mensagem de erro e retorna que houve erro e a última raiz encontrada
     print("ERRO! número máximo de iterações atingido.")
+    
     return (True, x)
