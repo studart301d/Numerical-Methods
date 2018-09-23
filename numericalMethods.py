@@ -170,7 +170,7 @@ def false_pos(f, a, b, epsilon, maxIter = 50):
 
 
 
-    def MPF(f, fi,x0, epsilson, iterMax=50):
+def MPF(f, fi,x0, epsilson, iterMax=50):
    
     ## Teste se x0 já é logo a raiz
     if f(x0) == 0:
@@ -199,7 +199,7 @@ def false_pos(f, a, b, epsilon, maxIter = 50):
     print("ERRO! número máximo de iterações atingido.")
     return (True, x)
 
-    def newton(f, flin, x0, epsilson, iterMax=50):
+def newton(f, flin, x0, epsilson, iterMax=50):
     """Executa o método de Newton-Raphson para ac8har o zero de f  
        a partir da derivada de f flin, aproximação inicial x0 
        e tolerância epsilon.
@@ -233,7 +233,7 @@ def false_pos(f, a, b, epsilon, maxIter = 50):
     return (True, x)
 
 
-    def secante(f, x0, x1, epsilson, iterMax=50):
+def secante(f, x0, x1, epsilson, iterMax=50):
     """Executa o método da Secante para achar o zero de f  
        a partir das aproximações x0 e x1, e da tolerância 
        epsilon.
