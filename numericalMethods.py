@@ -167,3 +167,107 @@ def false_pos(f, a, b, epsilon, maxIter = 50):
     print("ERRO! número máximo de iterações atingido.")
     
     return (True, x)
+
+
+
+    def MPF(f, fi,x0, epsilson, iterMax=50):
+   
+    ## Teste se x0 já é logo a raiz
+    if f(x0) == 0:
+        return (False,x0)
+
+    ## Escreva o cabeçalho da tabela e o valor da aproximação inicial
+    print("k\t  x\t\t  f(x1)\t")
+    
+    ## Inicie as iterações (pode ser um for)
+    for i in range(iterMax):
+        ## Em cada iteração: 
+        ##    Calcule x1 a partir de x0
+        x = fi(x0)
+        Fx = f(x)
+        ##    Escreva os valores de k, x1, f(x1)
+        print("%d\t%e\t%e"%(i, x, Fx))
+
+        ##    Teste para o critério de parada usando módulo da função
+        if abs(Fx) < epsilson:
+              return (False,x)
+        ##    Atualize o valor de x0
+        x0 = x
+          
+    ## Se atingir o número máximo de iterações mostra mensagem de erro e retorna
+    ## a última raiz encontrada
+    print("ERRO! número máximo de iterações atingido.")
+    return (True, x)
+
+    def newton(f, flin, x0, epsilson, iterMax=50):
+    """Executa o método de Newton-Raphson para ac8har o zero de f  
+       a partir da derivada de f flin, aproximação inicial x0 
+       e tolerância epsilon.
+       Retorna uma tupla (houveErro, raiz), onde houveErro é booleano.
+    """   
+    ## Teste se x0 já é logo a raiz
+    if f(x0) == 0:
+        return (False,x0)
+
+    ## Escreva o cabeçalho da tabela e o valor da aproximação inicial
+    print("k\t  x\t\t  f(x1)\t")
+    
+    ## Inicie as iterações (pode ser um for)
+    for i in range(iterMax):
+        ## Em cada iteração: 
+        ##    Calcule x1 a partir de x0
+        x = x0 - f(x0)/flin(x0)
+        Fx = f(x)
+        ##    Escreva os valores de k, x1, f(x1)
+        print("%d\t%e\t%e"%(i, x, Fx))
+
+        ##    Teste para o critério de parada usando módulo da função
+        if abs(Fx) < epsilson:
+              return (False,x)
+        ##    Atualize o valor de x0
+        x0 = x
+          
+    ## Se atingir o número máximo de iterações mostra mensagem de erro e retorna
+    ## a última raiz encontrada
+    print("ERRO! número máximo de iterações atingido.")
+    return (True, x)
+
+
+    def secante(f, x0, x1, epsilson, iterMax=50):
+    """Executa o método da Secante para achar o zero de f  
+       a partir das aproximações x0 e x1, e da tolerância 
+       epsilon.
+       Retorna uma tupla (houveErro, raiz), onde houveErro é booleano.
+    """
+    ## Teste se x0 e x1 já são raízes
+    if f(x0) == 0:
+        return (False,x0)
+    
+    if f(x1) == 0:
+        return (False,x1)
+    
+    ## Escreva o cabeçalho da tabela e as linhas para x0 e x1
+    print("k\t  x\t\t  f(x2)\t\t")
+    print("-\t%e\t%e"%(x0, f(x0)))
+    print("-\t%e\t%e"%(x1, f(x1)))
+    
+    ## Inicie as iterações (pode ser um for)
+    for i in range(iterMax):
+        ## Em cada iteração: 
+        ##Calcule x2 a partir de x0 e x1
+        x2 = (x0*f(x1) - x1*f(x0))/(f(x1) - f(x0))
+        Fx = f(x2)
+        ##    Escreva os valores de k, x2, f(x2)
+        print("%d\t%e\t%e"%(i, x2, Fx))
+
+        ##    Teste para o critério de parada usando módulo da função
+        if abs(Fx) < epsilson:
+              return (False,x2)
+        ##    Atualize o valor de x0 e x1
+        x0 = x1
+        x1 = x2
+          
+    ## Se atingir o número máximo de iterações mostra mensagem de erro e retorna
+    ## a última raiz encontrada
+    print("ERRO! número máximo de iterações atingido.")
+    return (True, x2)
