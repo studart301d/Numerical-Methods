@@ -1,3 +1,5 @@
+import numpy as np
+
 def busca_incremental(f,a,b,delta):
     
     if a > b :
@@ -271,3 +273,34 @@ def secante(f, x0, x1, epsilson, iterMax=50):
     ## a última raiz encontrada
     print("ERRO! número máximo de iterações atingido.")
     return (True, x2)
+
+
+    def sistemaLinearTriangular(matrizA,vectorb,tipo):
+    
+    if type(matrizA) != np.ndarray:
+            matrizA = np.array(matrizA)
+            
+    #Verificar se a Matriz A é triangular inferior
+
+    b = len(vectorb)  # size da Matriz A
+
+    vectorX = []    #Vetor x
+    
+    if tipo == 'inf':
+    
+        for i in range(b):
+            vectorX.append((vectorb[i] - sum(vectorX[0:i]*matrizA[i][0:i]))/matrizA[i][i])
+            
+    elif tipo == 'sup':
+        
+        #[::-1] Inverte o vetor [x,y][::-1] = [y,x]
+        matrizA = matrizA[::-1]
+        vectorb = vectorb[::-1]
+        
+        for i in range(b):
+            vectorX.append((vectorb[i] - sum(vectorX[0:i][::-1]*matrizA[i][b-i:b]))/matrizA[i][b - 1 -i])
+            
+        vectorX = vectorX[::-1]
+
+    return vectorX
+    
