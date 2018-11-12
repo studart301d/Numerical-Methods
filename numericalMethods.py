@@ -304,3 +304,317 @@ def secante(f, x0, x1, epsilson, iterMax=50):
 
     return vectorX
     
+    def substituicoes_retroativas(A, b):
+    '''Executa o método das substituições retroativas para resolver o sistema 
+       linear triangular superior Ax=b.
+       Parâmetros de entrada: A é uma matriz triangular superior e b é o vetor constante. 
+    '''
+    ## n é a ordem da matriz A
+    n = len(A)
+    
+    ## inicializa o vetor x com tamanho n e elementos iguais a 0
+    x = n * [0] 
+    
+    # escreva o seu código aqui
+    A = A[::-1]
+    b = b[::-1]
+    
+    for i in range(n):
+        x[i] = (b[i] - sum([elem1*elem2 for elem1,elem2 in zip(x[0:i][::-1],A[i][n-i:n])]))/A[i][n - 1 -i]
+         
+    return x[::-1]
+
+    def escolhe_pivo(k, A, b):
+    '''Escolhe o pivô de maior valor absoluto na coluna k a partir da linha k 
+       da matriz A. Se o pivô estiver numa linha diferente de k, as linhas da
+       matriz A e do vetor b são trocadas.
+       Saída: booleano (True se houve troca)
+    '''
+    ## n é a ordem da matriz A
+    n = len(A)
+    
+    ## inicializa flag para controlar se houve troca de linha com false
+    houve_troca = False
+    ## identifica o elemento de maior valor absoluto e a linha onde ele está
+    pivo = A[k][k]
+    for i in range(k,n):
+        auxPivo = abs(A[i][k])
+        if auxPivo > pivo :
+            
+            houve_troca = True
+            troca = i
+            
+    
+    ## se k for diferente da linha onde está o pivô, troca a linha k
+    ## pela linha do pivô em A e b e atribui o valor True à flag
+
+    if houve_troca == True:
+            
+        aux = A[k]
+        A[k] = A[troca]
+        A[troca] = aux
+            
+        pivo = auxPivo
+            
+        aux = b[k]
+        b[k] = b[troca]
+        b[troca] = aux
+    
+    ## retorna a flag
+    return houve_troca
+
+    def gauss_pivot_det(A, b):
+    '''Executa o método da eliminação de Gauss com pivotação para resolver o sistema  linear Ax=b 
+    transformando o sistema em um sistema triangular superior equivalente.
+    Parâmetros de entrada: A é uma matriz quadrada de ordem n e b é o vetor constante.
+    Saída: vetor x
+    '''
+    ## n é a ordem da matriz A
+    n = len(A)
+    P = 0
+    
+    ## Para cada etapa k
+    for j in range(n-1):
+        
+        ## Escolhe o pivô
+        houve_troca = escolhe_pivo(j,A,b)
+        if houve_troca == True:
+            P = P + 1
+            
+        ## Para cada linha i
+        for i in range(j+1,n):
+            
+            ## Calcula o fator m
+            m = -A[i][j]/A[j][j]
+            
+            ## Atualiza a linha i da matriz, percorrendo todas as colunas j
+            A[i] = [elem1 + elem2 for elem1,elem2 in zip(A[i],list(map(lambda x: x*m,A[j])))]
+            
+            # Atualiza o vetor b na linha i
+            b[i] = b[i] + m*b[j]
+            
+            ## Zera o elemento Aik
+            A[i][j] = 0 #Na minha opinião não precisa, não entendi porque precisa
+    
+    ## faz o cálculo do determinante antes de chamar as substituições retroativas
+
+        
+    det = 1
+    for i in range(n):
+        det = det*A[i][i]
+    det = ((-1)**P)*det
+    x = substituicoes_retroativas(A, b)
+    
+    return (x, det)
+
+    def gauss_jordan(A, b = None ,onlyInv = False):
+    
+    '''
+    Executa o método de Gauss-Jordan para resolver o sistema linear Ax=b 
+    transformando a matriz A na matriz identidade.
+    Parâmetros de entrada: A é uma matriz quadrada de ordem n e b é o vetor constante.
+    Saída: vetor solução x
+    '''
+    n = len(A)
+    
+    
+        
+    if type(A) != np.ndarray:
+            A = np.array(A)
+    if type(b) != np.ndarray:
+            b = np.array(b).astype(float)
+            
+    if b.all() == None:
+        b = n*[1] #só pra pode fazer operações e não mudar o muito o codigo,se pedi só a matriz inversa
+    
+    # escreva o código aqui
+    matrizA = np.concatenate((A,np.eye(n)),axis = 1).astype(float)
+    
+    for j in range(n):
+        
+        b[j] = b[j]/matrizA[j][j]
+        matrizA[j] = matrizA[j]/matrizA[j][j]
+        
+        for i in range(n):
+
+            if i != j :
+                m = -matrizA[i][j]/matrizA[j][j]
+                ## Atualiza a linha i da matriz, percorrendo todas as colunas j
+                matrizA[i] = matrizA[j]*m+ matrizA[i]
+                #matrizA[i] = [elem1 + elem2 for elem1,elem2 in zip(matrizA[i],list(map(lambda x: x*m,matrizA[j])))] 
+                #Sem ser com numpy
+                
+                # Atualiza o vetor b na linha i
+                b[i] = b[i] + m*b[j]
+                
+                 ## Zera o elereturn matrizA[:3,3:]mento Aik
+                matrizA[i][j] = 0 
+                
+    if onlyInv:
+        return matrizA[:3,3:]
+    else:
+        return (b,matrizA[:3,3:])
+
+
+    def substituicoes_sucessivas(matrizA, vectorb):
+    '''Executa o método das substituições sucessivas para resolver o sistema 
+       linear triangular inferior Ax=b.
+       Parâmetros de entrada: A é uma matriz triangular inferior e b é o vetor constante. 
+       Saída: vetor x
+    '''
+    if type(matrizA) != np.ndarray:
+        matrizA = np.array(matrizA)
+            
+    #Verificar se a Matriz A é triangular inferior
+
+    b = len(vectorb)  # size da Matriz A
+
+    vectorX = []    #Vetor x
+    
+    for i in range(b):
+        vectorX.append((vectorb[i] - sum(vectorX[0:i]*matrizA[i][0:i]))/matrizA[i][i])
+    return vectorX
+
+    def lu(A):
+    '''
+    Decompõe a matriz A no produto de duas matrizes L e U. Onde L é uma matriz 
+    triangular inferior unitária e U é uma matriz triangular superior.
+    Parâmetros de entrada: A é uma matriz quadrada de ordem n.
+    Saída: (L,U) tupla com as matrizes L e U
+    '''
+    n = len(A)
+    
+    ## Inicializa a matriz L com a matriz identidade
+    #L = identidade(n)
+    L = np.eye(n)
+    
+    # Escreva o seu código aqui
+    for j in range(n-1):
+        
+        ## Escolhe o pivô
+        #houve_troca = escolhe_pivo(j,A,b) #Não sei se precisa
+        
+        ## Para cada linha i
+        for i in range(j+1,n):        
+            
+            ## Calcula o fator m
+            m = -A[i][j]/A[j][j]
+            
+            ## Atualiza a linha i da matriz, percorrendo todas as colunas j
+            A[i] = [elem1 + elem2 for elem1,elem2 in zip(A[i],list(map(lambda x: x*m,A[j])))]
+            
+            ## Zera o elemento Aik
+            A[i][j] = 0 #Na minha opinião não precisa, não entendi porque precisa
+            
+            L[i][j] = -m
+    
+    return (L, np.array(A))
+
+    def resolve_lu(A,b):
+    '''
+    Executa o método LU para resolver o sistema  linear Ax=b.
+    Esse método inicialmente decompõe a matriz em L e U e depois resolve os 
+    dois sistemas lineares triangulares.
+    Parâmetros de entrada: A é uma matriz quadrada de ordem n e b é o vetor constante.
+    Saída: vetor x solução do sistema.
+    '''
+    
+    # Escreva o seu código aqui
+    (L,U)= lu(A)
+    
+    y = substituicoes_sucessivas(L,b)
+    x = substituicoes_retroativas(U,y)
+    
+    return x
+
+    def norma(v,x):
+    """Calcula a norma entre dois vetores v e x.
+    """
+    n = len(v)
+    if type(v) != np.ndarray:
+        v = np.array(v)
+    if type(x) != np.ndarray:
+        x = np.array(x)
+        
+    maxDif = max(abs(v-x))
+    maxV = max(abs(v))
+    
+    norma = maxDif/maxV 
+    
+    return norma
+
+    def jacobi(A, b, epsilon, iterMax=50):
+    """Resolve o sistema linear Ax=b usando o método iterativo Gauss-Jacobi.
+    O critério de parada utiliza a norma-infinito.
+    Saída é o vetor x.
+    
+    """
+    if type(A) != np.ndarray:
+        A = np.array(A).astype(float)
+    if type(b) != np.ndarray:
+        b = np.array(b).astype(float)
+        
+    n = len(A)
+    #x = n * [0]
+    x = np.zeros(n)
+    #v = n * [0]
+    v = np.zeros(n)
+    
+    for i in range(n):
+        
+        b[i] = b[i]/A[i][i]
+        A[i] = -A[i]/A[i][i]      
+        
+        x[i] = b[i]
+        
+        A[i][i] = 0
+        
+    for k  in range(iterMax):
+        for i in range(n):
+            v[i] = b[i] + sum((A*x)[i]) #Podia ser np.dot(A,x)[i]
+            
+        if norma(v,x) <= epsilon :
+            return v
+        x = np.copy(v)
+        
+    print("Passou do limite de iterações")
+    return v
+
+    def seidel(A, b, epsilon, iterMax=50):
+    """Resolve o sistema linear Ax=b usando o método iterativo Gauss-Jacobi.
+    O critério de parada utiliza a norma-infinito.
+    Saída é o vetor x.
+    
+    """
+    if type(A) != np.ndarray:
+        A = np.array(A).astype(float)
+    if type(b) != np.ndarray:
+        b = np.array(b).astype(float)
+        
+    n = len(A)
+    #x = n * [0]
+    x = np.zeros(n)
+    #v = n * [0]
+    v = np.zeros(n)
+    
+    for i in range(n):
+        
+        b[i] = b[i]/A[i][i]
+        A[i] = -A[i]/A[i][i]      
+        
+        A[i][i] = 0
+        
+    for k  in range(iterMax):
+        
+        x = np.copy(v)
+        for i in range(n):
+            
+            
+            v[i] = b[i] + sum((A*v)[i]) #Podia ser np.dot(A,x)[i]
+            
+            
+        if norma(v,x) < epsilon :
+            return v
+        
+    print("Passou do limite de iterações")
+    return v
